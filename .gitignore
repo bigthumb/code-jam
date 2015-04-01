@@ -1,0 +1,9 @@
+#.gitignore
+# ignore bases
+*.o
+*.a
+*.so
+# ignore files of Windows project
+*.opensdf
+*.sdf
+*.suo
