@@ -38,7 +38,7 @@ int dashboard()
     {
         int t = -1;
         scanf("%d", &t);
-        // 找出
+        // 第二次的选中行中的找出有几个是第一次的选中行的数字
         if(i / 4 + 1 == answer2 && rowmap[t - 1] == answer1)
         {
             if(NONE == res)
