@@ -10,12 +10,12 @@
 
 //-------------------------------------------------------------------------
 
-// 存在多个可能值
+// Multiple cards
 #define MUL     (-1)
-// 没有符合的值
+// Without corrective cards
 #define NONE    (0)
 
-// 卡片值作为数组索引，每个元素的值表示卡片所在的行
+// The card's value is the array's index, an element's value is the row
 int rowmap[16] = {0};
 
 int dashboard()
@@ -38,7 +38,8 @@ int dashboard()
     {
         int t = -1;
         scanf("%d", &t);
-        // 第二次的选中行中的找出有几个是第一次的选中行的数字
+        // Check how many card's value in the selected row for first question,
+        // which are in the selected row for second question too
         if(i / 4 + 1 == answer2 && rowmap[t - 1] == answer1)
         {
             if(NONE == res)
@@ -59,13 +60,13 @@ int main(int argc, const char* argv[])
     {
         int res = dashboard();
         if(MUL == res)
-            printf("Case #%d: %s", i + 1, "Bad magician!");
+            printf("Case #%d: %s\n", i + 1, "Bad magician!");
         else if(NONE == res)
-            printf("Case #%d: %s", i + 1, "Volunteer cheated!");
+            printf("Case #%d: %s\n", i + 1, "Volunteer cheated!");
         else
-            printf("Case #%d: %d", i + 1, res);
+            printf("Case #%d: %d\n", i + 1, res);
     }
-
+    
     return 0;
 }
 
