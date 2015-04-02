@@ -59,15 +59,15 @@ int main(int argc, const char* argv[])
 
     int T = 0;
     scanf("%d", &T);
-    for(int i = 0; i < T; ++i)
+    for(int i = 1; i <= T; ++i)
     {
         int res = findcard();
         if(MUL == res)
-            printf("Case #%d: %s\n", i + 1, "Bad magician!");
+            printf("Case #%d: %s\n", i, "Bad magician!");
         else if(NONE == res)
-            printf("Case #%d: %s\n", i + 1, "Volunteer cheated!");
+            printf("Case #%d: %s\n", i, "Volunteer cheated!");
         else
-            printf("Case #%d: %d\n", i + 1, res);
+            printf("Case #%d: %d\n", i, res);
     }
 
     return 0;
