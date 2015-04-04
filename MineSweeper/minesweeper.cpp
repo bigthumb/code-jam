@@ -3,10 +3,11 @@
 //  Author      :   bigthumb
 //  Create Time :   2015-4-2 20:39:48
 //  Description :   https://code.google.com/codejam/contest/2974486/dashboard#s=p2
-//  步骤：
-//  (1) 比较矩阵的要填充的行row和列col，若row大，则填充一行，否则填充一列，填充方向是从上往下或从左往右，
-//      重复该步骤直至要填充的mine不足以填满一行或一列；
-//  (2) 左上角向右填充和向下填充，直至填完mine，或者剩余最后2行或2列， 最后判断剩余mine，若为0，则成功，否则失败。
+//  设剩余未填充的行为row，列为col，填充mine的步骤：
+//  (1) 满足max(row, col)>2，若row>col，则填充一行（row减1），否则填充一列（col减1），重复该步骤
+//      直至剩余的mine不足以填满一行或一列；
+//  (2) 预留右部2列和下部2行不填充，从左往右和从上往下填充剩余的单元格；
+//  (3) 判断剩余mine，若为0，则成功，否则失败。
 //
 // -----------------------------------------------------------------------*/
 
@@ -21,21 +22,9 @@ static const char clean     = '.';
 static const char mine      = '*';
 static const char click     = 'c';
 
-void fillCorner(int r1, int c1, int r2, int c2, int& m)
+bool fillMine(int R, int C, int M)
 {
-    for(int i = r1; m > 0 && i <= r2; ++i)
-    {
-        for(int j = c1; m > 0 && j <= c2; ++j)
-        {
-            matrix[i][j] = mine;
-            --m;
-        }
-    }
-}
-
-bool fill(int R, int C, int M)
-{
-    // 只有1个单元格没有mine
+    // 仅有1个单元格不填mine
     if(1 == R * C - M)
     {
         for(int i = 0; i < R; ++i)
@@ -66,7 +55,7 @@ bool fill(int R, int C, int M)
         return true;
     }
 
-    // 全部填充clean
+    // 至少2个单元格不填mine，矩阵至少2行和2列，先全部填充clean
     for(int i = 0; i < R; ++i)
     {
         for(int j = 0; j < C; ++j)
@@ -76,51 +65,53 @@ bool fill(int R, int C, int M)
     }
 
     int m = M;
-    int r1 = 0;
-    int c1 = 0;
-    int r2 = R - 1;
-    int c2 = C - 1;
-
-    // 右部预留2列和下部预留2行，不填充mine
-    while(m > 0 && (r1 <= r2 - 2 || c1 <= c2 - 2))
+    int r = 0;
+    int c = 0;
+    while(m > 0)
     {
-        int row = r2 - r1 + 1;
-        int col = c2 - c1 + 1;
+        int row = R - r;
+        int col = C - c;
+        if(row <= 2 && col <= 2)
+            break;
+
         if(row > col)
         {
             if(m < col)
-            {
-                fillCorner(r1, c1, r2 - 2, c2 - 2, m);
                 break;
-            }
             else
             {
-                for(int i = c1; i <= c2; ++i)
+                for(int i = c; i < C; ++i)
                 {
-                    matrix[r1][i] = mine;
+                    matrix[r][i] = mine;
                 }
 
-                ++r1;
+                ++r;
                 m -= col;
             }
         }
         else
         {
             if(m < row)
-            {
-                fillCorner(r1, c1, r2 - 2, c2 - 2, m);
                 break;
-            }
             else
             {
-                for(int i = r1; i <= r2; ++i)
+                for(int i = r; i < R; ++i)
                 {
-                    matrix[i][c1] = mine;
+                    matrix[i][c] = mine;
                 }
 
-                ++c1;
+                ++c;
                 m -= row;
             }
+        }
+    }
+
+    for(int i = r; m > 0 && i < R - 2; ++i)
+    {
+        for(int j = c; m > 0 && j < C - 2; ++j)
+        {
+            matrix[i][j] = mine;
+            --m;
         }
     }
 
@@ -142,7 +133,7 @@ int main(int argc, const char* argv[])
         int R, C, M;
         scanf("%d %d %d", &R, &C, &M);
 
-        if(!fill(R, C, M))
+        if(!fillMine(R, C, M))
             printf("Case #%d:\n%s\n", i, "Impossible");
         else
         {
