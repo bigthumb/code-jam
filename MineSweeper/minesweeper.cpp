@@ -81,7 +81,7 @@ bool fill(int R, int C, int M)
     int r2 = R - 1;
     int c2 = C - 1;
 
-    // 左部预留2列和下部预留2行，不填充mine
+    // 右部预留2列和下部预留2行，不填充mine
     while(m > 0 && (r1 <= r2 - 2 || c1 <= c2 - 2))
     {
         int row = r2 - r1 + 1;
