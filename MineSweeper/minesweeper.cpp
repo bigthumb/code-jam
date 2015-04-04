@@ -4,11 +4,9 @@
 //  Create Time :   2015-4-2 20:39:48
 //  Description :   https://code.google.com/codejam/contest/2974486/dashboard#s=p2
 //  步骤：
-//  (1) 比较当前矩阵的行row和列col，若row大，则填充一行，否则填充一列，重复该步骤直至要填充的mine不足以
-//      填满一行或一列；
-//  (2) 先同时从左上角向右填充和右下角向左填充，直至填完mine或和填充方向的列边界间隔3个单元（cell），接着
-//      同时从左上角向下填充和右下角向上填充，直至填完mine或和填充方向的行边界间隔3个单元（cell），最后判断
-//      剩余mine，若为0，则成功，否则失败。
+//  (1) 比较矩阵的要填充的行row和列col，若row大，则填充一行，否则填充一列，填充方向是从上往下或从左往右，
+//      重复该步骤直至要填充的mine不足以填满一行或一列；
+//  (2) 左上角向右填充和向下填充，直至填完mine，或者剩余最后2行或2列， 最后判断剩余mine，若为0，则成功，否则失败。
 //
 // -----------------------------------------------------------------------*/
 
@@ -19,134 +17,121 @@
 static const int num = 52;
 static char matrix[num][num];
 
-static int midRow = 0;
-static int midCol = 0;
-
 static const char clean     = '.';
 static const char mine      = '*';
 static const char click     = 'c';
 
-bool fillCorner(int r1, int c1, int r2, int c2, int m)
+void fillCorner(int r1, int c1, int r2, int c2, int& m)
 {
-    int i = 0;
-    while(m > 0)
+    for(int i = r1; m > 0 && i <= r2; ++i)
     {
-        if(c2 - (c1 + i) >= 3)
+        for(int j = c1; m > 0 && j <= c2; ++j)
         {
-            matrix[r1][c1 + i] = mine;
+            matrix[i][j] = mine;
             --m;
-            if(m > 0)
-            {
-                matrix[r2][c2 - i] = mine;
-                --m;
-            }
-            ++i;
         }
-        else
+    }
+}
+
+bool fill(int R, int C, int M)
+{
+    // 只有1个单元格没有mine
+    if(1 == R * C - M)
+    {
+        for(int i = 0; i < R; ++i)
         {
-            break;
+            for(int j = 0; j < C; ++j)
+            {
+                matrix[i][j] = mine;
+            }
+        }
+
+        matrix[R - 1][C - 1] = click;
+        return true;
+    }
+
+    if(1 == R || 1 == C)
+    {
+        for(int i = 0; i < M; ++i)
+        {
+            matrix[i % R][i / R] = mine;
+        }
+
+        for(int j = M; j < R * C; ++j)
+        {
+            matrix[j % R][j / R] = clean;
+        }
+
+        matrix[R - 1][C - 1] = click;
+        return true;
+    }
+
+    // 全部填充clean
+    for(int i = 0; i < R; ++i)
+    {
+        for(int j = 0; j < C; ++j)
+        {
+            matrix[i][j] = clean;
         }
     }
 
-    int j = 1;
-    while(m > 0)
+    int m = M;
+    int r1 = 0;
+    int c1 = 0;
+    int r2 = R - 1;
+    int c2 = C - 1;
+    while(m > 0 && (r1 <= r2 - 2 || c1 <= c2 - 2))
     {
-        if(r2 - (r1 + j) >= 3)
+        int row = r2 - r1 + 1;
+        int col = c2 - c1 + 1;
+        if(row > col)
         {
-            matrix[r1 + j][c1] = mine;
-            --m;
-            if(m > 0)
+            if(m < col)
             {
-                matrix[r2 - j][c2] = mine;
-                --m;
+                fillCorner(r1, c1, r2 - 2, c2 - 2, m);
+                break;
             }
-            ++j;
+            else
+            {
+                for(int i = c1; i <= c2; ++i)
+                {
+                    matrix[r1][i] = mine;
+                }
+
+                ++r1;
+                m -= col;
+            }
         }
         else
         {
-            break;
+            if(m < row)
+            {
+                fillCorner(r1, c1, r2 - 2, c2 - 2, m);
+                break;
+            }
+            else
+            {
+                for(int i = r1; i <= r2; ++i)
+                {
+                    matrix[i][c1] = mine;
+                }
+
+                ++c1;
+                m -= row;
+            }
         }
     }
+
+    if(0 == m)
+        matrix[R - 1][C - 1] = click;
 
     return (0 == m);
 }
 
-inline bool isClean(int r, int c)
-{
-    return (
-        (clean == matrix[r][c]) && (clean == matrix[r][c - 1]) && (clean == matrix[r][c + 1]) && 
-        (clean == matrix[r - 1][c - 1]) && (clean == matrix[r - 1][c]) && (clean == matrix[r - 1][c + 1]) && 
-        (clean == matrix[r + 1][c - 1]) && (clean == matrix[r + 1][c]) && (clean == matrix[r + 1][c + 1])
-    );
-}
-
-bool markClick(int r1, int c1, int r2, int c2)
-{
-    for(int i = r2; i >= r1; --i)
-    {
-        for(int j = c1; j <= c2; ++j)
-        {
-            if(isClean(i, j))
-            {
-                matrix[i][j] = click;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool fill(int r1, int c1, int r2, int c2, int m)
-{
-    int row = r2 - r1 + 1;
-    int col = c2 - c1 + 1;
-    if(row > col)
-    {
-        if(m >= col)
-        {
-            int r = (midRow - r1 > r2 - midRow ? r1++ : r2--);
-            for(int i = c1; i <= c2; ++i)
-            {
-                matrix[r][i] = mine;
-            }
-
-            return fill(r1, c1, r2, c2, m - col);
-        }
-        else
-        {
-            if(fillCorner(r1, c1, r2, c2, m))
-                return markClick(r1, c1, r2, c2);
-            else
-                return false;
-        }
-    }
-    else
-    {
-        if(m >= row)
-        {
-            int c = (midCol - c1 > c2 - midCol ? c1++ : c2--);
-            for(int i = r1; i <= r2; ++i)
-            {
-                matrix[i][c] = mine;
-            }
-
-            return fill(r1, c1, r2, c2, m - row);
-        }
-        else
-        {
-            if(fillCorner(r1, c1, r2, c2, m))
-                return markClick(r1, c1, r2, c2);
-            else
-                return false;
-        }
-    }
-}
-
 int main(int argc, const char* argv[])
 {
-    freopen("C-small-practice.in", "r", stdin);
-    freopen("C-small-practice.out", "w", stdout);
+    freopen("C-large-practice.in", "r", stdin);
+    freopen("C-large-practice.out", "w", stdout);
 
     int T = 0;
     scanf("%d", &T);
@@ -155,27 +140,16 @@ int main(int argc, const char* argv[])
         int R, C, M;
         scanf("%d %d %d", &R, &C, &M);
 
-        for(int k = 0; k <= R + 1; ++k)
-        {
-            for(int t = 0; t <= C + 1; ++t)
-            {
-                matrix[k][t] = clean;
-            }
-        }
-
-        midRow = (1 + R) / 2;
-        midCol = (1 + C) / 2;
-
-        if(!fill(1, 1, R, C, M))
+        if(!fill(R, C, M))
             printf("Case #%d:\n%s\n", i, "Impossible");
         else
         {
             printf("Case #%d:\n", i);
-            for(int k = 1; k <= R; ++k)
+            for(int k = 0; k < R; ++k)
             {
-                for(int t = 1; t <= C; ++t)
+                for(int t = 0; t < C; ++t)
                 {
-                    printf("%c ", matrix[k][t]);
+                    printf("%c", matrix[k][t]);
                 }
                 printf("\n");
             }
