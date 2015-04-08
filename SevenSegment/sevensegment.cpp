@@ -16,13 +16,6 @@
 
 // ÈÔ´æÔÚ´íÎó£¬´ı½â¾ö
 
-static const uint8_t A          = 0x40;
-static const uint8_t B          = 0x20;
-static const uint8_t C          = 0x10;
-static const uint8_t D          = 0x08;
-static const uint8_t E          = 0x04;
-static const uint8_t F          = 0x02;
-static const uint8_t G          = 0x01;
 static const uint8_t invalid    = 0xFF;
 
 static uint8_t table[256];      // map between digital and segment-number
