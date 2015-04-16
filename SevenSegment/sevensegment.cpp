@@ -14,13 +14,11 @@
 
 //-------------------------------------------------------------------------
 
-// ÈÔ´æÔÚ´íÎó£¬´ı½â¾ö
-
 static const uint8_t invalid    = 0xFF;
 
 static uint8_t table[256];      // map between digital and segment-number
 
-static uint8_t states[100];  // 1 ¡Ü N ¡Ü 100
+static uint8_t states[100];  // 1 â‰¤ N â‰¤ 100
 
 // i [6,0]<=>[A,B,..,G]
 void subset(uint8_t d, int i, std::vector<uint8_t>& sv)
@@ -33,7 +31,7 @@ void subset(uint8_t d, int i, std::vector<uint8_t>& sv)
     else
     {
         subset(d, i - 1, sv);
-        subset(d & (~(1 << i) & 0x7F), i - 1, sv);  // iÎ»ÖÃÎª0
+        subset(d & (~(1 << i) & 0x7F), i - 1, sv);  // iä½ç½®ä¸º0
     }
 }
 
@@ -45,7 +43,7 @@ uint8_t nextState(int N)
         p |= states[i];
     }
 
-    // ÓÃ1±íÊ¾´ıÈ·ÈÏµÄ»µ±ß
+    // ç”¨1è¡¨ç¤ºå¾…ç¡®è®¤çš„åè¾¹
     p = (~p & 0x7F);
 
     std::vector<uint8_t> pv;
@@ -138,7 +136,7 @@ int main(int argc, const char* argv[])
 
     ::memset(table, invalid, sizeof(table));
 
-    // ÒòÎª²»ÖØµşÊı×ÖºÍ¶ÎÂëÖ®¼äµÄÓ³Éä£¬¿ÉÓÃÒ»¸öÊı×é±íÊ¾
+    // å› ä¸ºä¸é‡å æ•°å­—å’Œæ®µç ä¹‹é—´çš„æ˜ å°„ï¼Œå¯ç”¨ä¸€ä¸ªæ•°ç»„è¡¨ç¤º
     //                             ABC DEFG
     table[0x7E] = 0;            // 111 1110
     table[0x30] = 1;            // 011 0000
